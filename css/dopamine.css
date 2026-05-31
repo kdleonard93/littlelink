@@ -1,0 +1,266 @@
+/*
+* Digital Dopamine — custom theme layer
+* Loaded LAST, on top of reset.css / style.css / brands.css so it always wins.
+* Keeps the upstream LittleLink files untouched for easy future merges.
+*/
+
+/* ── Palette ──────────────────────────────────────────────────────────── */
+:root {
+  --dd-cyan:    #22d3ee;
+  --dd-indigo:  #818cf8;
+  --dd-magenta: #d946ef;
+  --dd-pink:    #ec4899;
+
+  --dd-grad: linear-gradient(135deg, var(--dd-cyan) 0%, var(--dd-indigo) 45%, var(--dd-magenta) 100%);
+
+  /* Dark (default) surface tokens */
+  --dd-bg-0:   #05070f;
+  --dd-bg-1:   #0a0e1a;
+  --dd-text:   #eef2fb;
+  --dd-muted:  #9aa6c2;
+  --dd-card:   rgba(18, 24, 42, 0.55);
+  --dd-card-border: rgba(130, 150, 200, 0.18);
+  --dd-glass-shine: rgba(255, 255, 255, 0.06);
+}
+
+/* Light theme overrides */
+:root.theme-light {
+  --dd-bg-0:  #eef1fb;
+  --dd-bg-1:  #f7f9ff;
+  --dd-text:  #141a2e;
+  --dd-muted: #51607f;
+  --dd-card:  rgba(255, 255, 255, 0.72);
+  --dd-card-border: rgba(60, 90, 160, 0.16);
+  --dd-glass-shine: rgba(255, 255, 255, 0.55);
+}
+/* Auto theme picks light tokens only when the OS asks for light */
+@media (prefers-color-scheme: light) {
+  :root.theme-auto {
+    --dd-bg-0:  #eef1fb;
+    --dd-bg-1:  #f7f9ff;
+    --dd-text:  #141a2e;
+    --dd-muted: #51607f;
+    --dd-card:  rgba(255, 255, 255, 0.72);
+    --dd-card-border: rgba(60, 90, 160, 0.16);
+    --dd-glass-shine: rgba(255, 255, 255, 0.55);
+  }
+}
+
+/* ── Backdrop ─────────────────────────────────────────────────────────── */
+body {
+  position: relative;
+  min-height: 100vh;
+  color: var(--dd-text);
+  background:
+    radial-gradient(900px 600px at 12% -5%, rgba(34, 211, 238, 0.14), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgba(217, 70, 239, 0.14), transparent 55%),
+    radial-gradient(1000px 800px at 50% 120%, rgba(129, 140, 248, 0.12), transparent 60%),
+    linear-gradient(180deg, var(--dd-bg-1) 0%, var(--dd-bg-0) 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* Neural network canvas sits behind everything */
+.neural-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.container { position: relative; z-index: 1; }
+
+/* ── Content card ─────────────────────────────────────────────────────── */
+.column {
+  position: relative;
+  padding: 2.75rem 1.75rem 1.5rem;
+  border-radius: 1.5rem;
+  background: var(--dd-card);
+  border: 1px solid var(--dd-card-border);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow:
+    0 30px 80px -30px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+}
+/* Gradient hairline glow framing the card */
+.column::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--dd-grad);
+  opacity: 0.35;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── Avatar with rotating gradient glow ring ──────────────────────────── */
+.avatar-ring {
+  position: relative;
+  width: 9rem;
+  height: 9rem;
+  margin: 0 auto var(--spacing-l, 2rem);
+  display: grid;
+  place-items: center;
+}
+.avatar-ring::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--dd-cyan), var(--dd-indigo), var(--dd-magenta), var(--dd-cyan));
+  filter: blur(11px);
+  opacity: 0.85;
+  z-index: 0;
+  animation: dd-spin 7s linear infinite;
+}
+.avatar-ring .avatar {
+  position: relative;
+  z-index: 1;
+  width: 8rem;
+  height: 8rem;
+  margin: 0;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+}
+
+@keyframes dd-spin { to { transform: rotate(360deg); } }
+
+/* ── Typography ───────────────────────────────────────────────────────── */
+h1 {
+  background: var(--dd-grad);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 18px rgba(129, 140, 248, 0.35));
+  letter-spacing: -0.02em;
+}
+.container p { color: var(--dd-muted); }
+
+/* ── Buttons: keep brand color, add glow + lift + shine ───────────────── */
+.button-stack .button {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  font-weight: 700;
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.28s ease,
+    filter 0.28s ease;
+  will-change: transform;
+}
+.button-stack .button:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.06);
+  box-shadow:
+    0 12px 34px -8px var(--button-background, rgba(34, 211, 238, 0.55)),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+.button-stack .button:active { transform: translateY(-1px); }
+
+/* Diagonal shine sweep on hover */
+.button-stack .button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+  transform: translateX(-130%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+.button-stack .button:hover::after { transform: translateX(130%); }
+
+/* ── Footer & links ───────────────────────────────────────────────────── */
+footer { color: var(--dd-muted); }
+footer a, .container a:not(.button) {
+  color: var(--dd-cyan);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+footer a:hover, .container a:not(.button):hover {
+  color: var(--dd-magenta);
+  border-bottom-color: currentColor;
+}
+
+/* ── Theme toggle ─────────────────────────────────────────────────────── */
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 5;
+  width: 2.85rem;
+  height: 2.85rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--dd-text);
+  background: var(--dd-card);
+  border: 1px solid var(--dd-card-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.theme-toggle:hover {
+  transform: translateY(-2px) rotate(-12deg);
+  border-color: var(--dd-cyan);
+  box-shadow: 0 8px 24px -6px rgba(34, 211, 238, 0.5);
+}
+.theme-toggle svg { width: 1.3rem; height: 1.3rem; }
+.theme-toggle .icon-sun  { display: none; }
+.theme-toggle .icon-moon { display: block; }
+:root.theme-dark  .theme-toggle .icon-sun  { display: block; }
+:root.theme-dark  .theme-toggle .icon-moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root.theme-auto .theme-toggle .icon-sun  { display: block; }
+  :root.theme-auto .theme-toggle .icon-moon { display: none; }
+}
+
+/* ── Entrance animations (gated on .dd-ready so no-JS stays visible) ───── */
+@keyframes dd-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+.dd-ready .avatar-ring,
+.dd-ready h1,
+.dd-ready .container > .column > p,
+.dd-ready .button-stack .button,
+.dd-ready footer {
+  opacity: 0;
+  animation: dd-rise 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.dd-ready .avatar-ring            { animation-delay: 0.05s; }
+.dd-ready h1                      { animation-delay: 0.15s; }
+.dd-ready .container > .column > p { animation-delay: 0.25s; }
+.dd-ready .button-stack .button:nth-child(1)  { animation-delay: 0.34s; }
+.dd-ready .button-stack .button:nth-child(2)  { animation-delay: 0.40s; }
+.dd-ready .button-stack .button:nth-child(3)  { animation-delay: 0.46s; }
+.dd-ready .button-stack .button:nth-child(4)  { animation-delay: 0.52s; }
+.dd-ready .button-stack .button:nth-child(5)  { animation-delay: 0.58s; }
+.dd-ready .button-stack .button:nth-child(6)  { animation-delay: 0.64s; }
+.dd-ready .button-stack .button:nth-child(7)  { animation-delay: 0.70s; }
+.dd-ready .button-stack .button:nth-child(8)  { animation-delay: 0.76s; }
+.dd-ready .button-stack .button:nth-child(9)  { animation-delay: 0.82s; }
+.dd-ready .button-stack .button:nth-child(10) { animation-delay: 0.88s; }
+.dd-ready .button-stack .button:nth-child(11) { animation-delay: 0.94s; }
+.dd-ready .button-stack .button:nth-child(12) { animation-delay: 1.00s; }
+.dd-ready footer                  { animation-delay: 1.06s; }
+
+/* ── Reduced motion: drop everything flashy, keep it usable ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  .avatar-ring::before { animation: none; }
+  .dd-ready .avatar-ring,
+  .dd-ready h1,
+  .dd-ready .container > .column > p,
+  .dd-ready .button-stack .button,
+  .dd-ready footer { opacity: 1; animation: none; }
+  .button-stack .button::after { display: none; }
+}
